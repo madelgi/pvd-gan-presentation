@@ -1,7 +1,10 @@
 """
 Class controlling GAN training.
 """
+import logging
+
 from keras.layers import Input
+from keras.models import Model
 from keras.optimizers import Adam
 import numpy as np
 
@@ -9,9 +12,12 @@ from pvd_gan_presentation.model import PVDGenerator, PVDDiscriminator
 from pvd_gan_presentation.data import sample_data
 
 
+logger = logging.getLogger(__name__)
+
+
 class PVDTrainer:
 
-    def init(self, generator: PVDGenerator = None, discriminator: PVDDiscriminator = None):
+    def __init__(self, generator: PVDGenerator = None, discriminator: PVDDiscriminator = None):
         if not (generator and discriminator):
             raise ValueError("Please pass a generator and discriminator to PVDTrainer.")
 
@@ -26,17 +32,17 @@ class PVDTrainer:
         is_real = self.d.model(out)
 
         combined = Model(z, is_real)
-        combined.compile(loss='binary_crossentropy', optimizer=Adam())
+        combined.compile(loss='binary_crossentropy', optimizer='rmsprop')
         return combined
 
-    def train(self, epochs, batch_size):
+    def train(self, num_iters: int = 10000, batch_size: int = 128) -> None:
         X_train = sample_data()
         valid = np.ones((batch_size, 1))
         fake = np.zeros((batch_size, 1))
 
-        for epoch in range(epochs):
+        for i, epoch in enumerate(range(num_iters)):
             # Generate noise and output for generator
-            noise = np.random.normal(0, 1, (batch_size, self.g.mp['input_shape']))
+            noise = np.random.normal(0, 1, (batch_size, self.g.mp['input_shape'][0]))
             X_fake = self.g.model.predict(noise)
 
             # Generate real pts for discriminator
@@ -49,4 +55,16 @@ class PVDTrainer:
             d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
             # Generator loss
+            noise = np.random.normal(0, 1, (batch_size, self.g.mp['input_shape'][0]))
+            X_fake = self.g.model.predict(noise)
             g_loss = self.gan.train_on_batch(X_fake, valid)
+            if i % 100 == 0:
+                logger.error(f"Iteration {epoch} [D loss: {d_loss[0]}, acc.: {100*d_loss[1]}] [G loss: {g_loss}]")
+
+
+if __name__ == '__main__':
+    gen = PVDGenerator()
+    disc = PVDDiscriminator()
+
+    trainer = PVDTrainer(generator=gen, discriminator=disc)
+    trainer.train()
