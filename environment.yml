@@ -1,0 +1,7 @@
+name: pvd-gan
+dependencies:
+    - tensorflow
+    - keras
+    - numpy
+    - pandas
+    - jupyter
