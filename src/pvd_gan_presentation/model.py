@@ -1,5 +1,7 @@
 """Model implementation.
 """
+from keras.losses import BinaryCrossentropy
+from keras.optimizers import RMSprop
 from keras.layers import Input, Dense, LeakyReLU
 from keras.models import Model
 
@@ -9,7 +11,7 @@ DEFAULT_GENERATOR = {
     'input_shape': (2,),
     'h1_size': 16, 'h1_activation': LeakyReLU(alpha=0.2),
     'h2_size': 16, 'h2_activation': LeakyReLU(alpha=0.2),
-    'output': 2, 'output_activation': 'linear',
+    'output': 2, 'output_activation': 'linear'
 }
 
 DEFAULT_DISCRIMINATOR = {
@@ -18,11 +20,11 @@ DEFAULT_DISCRIMINATOR = {
     'h1_size': 16, 'h1_activation': LeakyReLU(alpha=0.2),
     'h2_size': 16, 'h2_activation': LeakyReLU(alpha=0.2),
     'h3_size': 2, 'h3_activation': 'linear',
-    'output': 1, 'output_activation': 'sigmoid',
+    'output': 1, 'output_activation': 'linear',
 
     # Optimizer/loss
     'optimizer': 'rmsprop',
-    'loss': 'binary_crossentropy'
+    'loss': BinaryCrossentropy(from_logits=True)
 }
 
 class PVDGenerator:
@@ -65,7 +67,11 @@ class PVDDiscriminator:
         hidden3 = Dense(self.mp['h3_size'], activation=self.mp['h3_activation'])(hidden2)
         outputs = Dense(self.mp['output'], activation=self.mp['output_activation'])(hidden3)
         model = Model(inputs=inputs, outputs=outputs)
-        model.compile(optimizer=self.mp['optimizer'], loss=self.mp['loss'], metrics=['accuracy'])
+        model.compile(
+            optimizer=self.mp['optimizer'],
+            loss=self.mp['loss'],
+            metrics=['accuracy']
+        )
         return model
 
 

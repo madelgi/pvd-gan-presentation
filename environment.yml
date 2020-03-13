@@ -2,6 +2,8 @@ name: pvd-gan
 dependencies:
     - tensorflow
     - keras
+    - matplotlib
     - numpy
     - pandas
     - jupyter
+    - pip
