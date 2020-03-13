@@ -47,7 +47,7 @@ class PVDGAN:
         g_loss = None
 
         # Hold
-        noise = np.random.normal(0, 1, (batch_size, self.g.mp['input_shape'][0]))
+        Z_batch = np.random.uniform(-1, 1, (batch_size, self.g.mp['input_shape'][0]))
         xdata, ydata = self.g.model.predict(Z_batch).T
 
         if visualize:
