@@ -18,8 +18,16 @@ from pvd_gan_presentation.data import sample_data
 logger = logging.getLogger(__name__)
 
 
+TRAINING_PARAMS = {
+    'num_iters':
+    'kstep': 5,
+}
+
 class PVDGAN:
-    def __init__(self, generator: PVDGenerator = None, discriminator: PVDDiscriminator = None):
+    def __init__(
+            self,
+            generator: PVDGenerator = None,
+            discriminator: PVDDiscriminator = None):
         if not (generator and discriminator):
             raise ValueError("Please pass a generator and discriminator to PVDTrainer.")
 
